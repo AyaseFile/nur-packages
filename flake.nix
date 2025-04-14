@@ -5,7 +5,7 @@
     let
       inherit (builtins) elem filter;
       inherit (nixpkgs.lib) genAttrs replaceStrings;
-      inherit (nixpkgs.lib.filesystem) listFilesRecursive packagesFromDirectoryRecursive;
+      inherit (nixpkgs.lib.filesystem) listFilesRecursive;
 
       nameOf = path: replaceStrings [ ".nix" ] [ "" ] (baseNameOf (toString path));
 
@@ -15,6 +15,19 @@
       specialModules = [ ];
 
       forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
+
+      loadPackages =
+        { callPackage, directory }:
+        let
+          subdirs = builtins.attrNames (builtins.readDir directory);
+          packages = builtins.listToAttrs (
+            map (name: {
+              inherit name;
+              value = callPackage (directory + "/${name}") { };
+            }) subdirs
+          );
+        in
+        packages;
     in
     {
       legacyPackages = forAllSystems (
@@ -22,7 +35,7 @@
         let
           pkgs = import nixpkgs { inherit system; };
         in
-        packagesFromDirectoryRecursive {
+        loadPackages {
           inherit (pkgs) callPackage;
           directory = ./packages;
         }
