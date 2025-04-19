@@ -13,20 +13,12 @@ let
     types
     optionalAttrs
     ;
-  cfg = config.services.eh-archive;
+  cfg = config.programs.eh-archive;
   pkg = pkgs.callPackage ../packages/eh-archive { };
 in
 {
-  options.services.eh-archive = {
+  options.programs.eh-archive = {
     enable = mkEnableOption "EhArchive";
-    user = mkOption {
-      type = types.str;
-      description = "User under which the service runs";
-    };
-    group = mkOption {
-      type = types.str;
-      description = "Group under which the service runs";
-    };
     site = mkOption {
       type = types.enum [
         "e-hentai.org"
@@ -36,22 +28,22 @@ in
       description = "The site you want to retrieve from";
     };
     memberId = mkOption {
-      type = types.str;
+      type = types.singleLineStr;
       description = "Your `ipb_member_id` cookie";
     };
     passHash = mkOption {
-      type = types.str;
+      type = types.singleLineStr;
       description = "Your `ipb_pass_hash` cookie";
     };
     igneous = mkOption {
-      type = types.nullOr types.str;
+      type = types.nullOr types.singleLineStr;
       default = null;
       description = "Your `igneous` cookie";
     };
     port = mkOption {
       type = types.int;
       default = 3000;
-      description = "Port to run the server on";
+      description = "Port to run the backend on";
     };
     archiveOutput = mkOption {
       type = types.path;
@@ -65,6 +57,11 @@ in
       type = types.path;
       description = "Path to the tag database root";
     };
+    limit = mkOption {
+      type = types.int;
+      default = 5;
+      description = "Limit the number of tasks to process";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -75,11 +72,9 @@ in
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "exec";
-        ExecStart = "${pkg}/bin/eh-archive --port ${toString cfg.port} --archive-output ${cfg.archiveOutput} --library-root ${cfg.libraryRoot} --tag-db-root ${cfg.tagDbRoot}";
-        User = cfg.user;
-        Group = cfg.group;
-        StandardOutput = "journal";
-        StandardError = "journal";
+        ExecStart = "${pkg}/bin/eh-archive --port ${toString cfg.port} --archive-output ${cfg.archiveOutput} --library-root ${cfg.libraryRoot} --tag-db-root ${cfg.tagDbRoot} --limit ${toString cfg.limit}";
+        User = "1000";
+        Group = "100";
       };
       environment =
         {
@@ -91,5 +86,9 @@ in
           EH_AUTH_IGNEOUS = cfg.igneous;
         };
     };
+
+    environment.systemPackages = [
+      pkg
+    ];
   };
 }

@@ -12,31 +12,23 @@ let
     mkIf
     types
     ;
-  cfg = config.services.post-archiver-viewer;
+  cfg = config.programs.post-archiver-viewer;
   pkg = pkgs.callPackage ../packages/post-archiver-viewer { };
 in
 {
-  options.services.post-archiver-viewer = {
+  options.programs.post-archiver-viewer = {
     enable = mkEnableOption "PostArchiverViewer";
-    user = mkOption {
-      type = types.str;
-      description = "User under which the service runs";
-    };
-    group = mkOption {
-      type = types.str;
-      description = "Group under which the service runs";
-    };
     archiver = mkOption {
       type = types.path;
       description = "Path to the archiver library";
     };
     resourceUrl = mkOption {
-      type = types.nullOr types.str;
+      type = types.nullOr types.singleLineStr;
       default = null;
       description = "URL to the resource (optional)";
     };
     imagesUrl = mkOption {
-      type = types.nullOr types.str;
+      type = types.nullOr types.singleLineStr;
       default = null;
       description = "URL to the images (optional)";
     };
@@ -94,14 +86,16 @@ in
             imagesUrlArg = lib.optionalString (cfg.imagesUrl != null) " --images-url ${cfg.imagesUrl}";
           in
           baseCmd + resourceUrlArg + imagesUrlArg;
-        User = cfg.user;
-        Group = cfg.group;
-        StandardOutput = "journal";
-        StandardError = "journal";
+        User = "1000";
+        Group = "100";
       };
       environment = {
         ARCHIVER_PATH = cfg.archiver;
       };
     };
+
+    environment.systemPackages = [
+      pkg
+    ];
   };
 }

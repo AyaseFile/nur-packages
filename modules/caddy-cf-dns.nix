@@ -29,7 +29,7 @@ in
     };
 
     environmentFile = mkOption {
-      type = types.str;
+      type = types.path;
       default = "/etc/caddy/.env";
     };
   };

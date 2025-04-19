@@ -8,13 +8,13 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "FanboxArchive";
-  version = "0.4.3";
+  version = "0.4.5";
 
   src = fetchFromGitHub {
     owner = "xiao-e-yun";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-wIKyZs/U/A0gFR0lr2SnieHgMjv6LVQzjF3KTLUa0DM=";
+    sha256 = "sha256-S34FIP3LwrL/wvi5gwfxckq0tfa97BkhJbZAbHBVLc8=";
   };
 
   useFetchCargoVendor = true;

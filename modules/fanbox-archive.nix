@@ -12,30 +12,27 @@ let
     mkIf
     types
     ;
-  cfg = config.services.fanbox-archive;
+  cfg = config.programs.fanbox-archive;
   pkg = pkgs.callPackage ../packages/fanbox-archive { };
 in
 {
-  options.services.fanbox-archive = {
+  options.programs.fanbox-archive = {
     enable = mkEnableOption "FanboxArchive";
-    user = mkOption {
-      type = types.str;
-      description = "User under which the service runs";
-    };
-    group = mkOption {
-      type = types.str;
-      description = "Group under which the service runs";
-    };
-    sessid = mkOption {
-      type = types.str;
+    session = mkOption {
+      type = types.singleLineStr;
       description = "Your `FANBOXSESSID` cookie";
     };
     output = mkOption {
       type = types.path;
       description = "Which path you want to save";
     };
+    extraArgs = mkOption {
+      type = types.singleLineStr;
+      default = "";
+      description = "Extra arguments to pass";
+    };
     interval = mkOption {
-      type = types.str;
+      type = types.singleLineStr;
       default = "14d";
       example = "1d";
       description = "How often to run the sync (systemd time format)";
@@ -47,14 +44,12 @@ in
       description = "FanboxArchive";
       serviceConfig = {
         Type = "exec";
-        ExecStart = "${pkg}/bin/fanbox-archive";
-        User = cfg.user;
-        Group = cfg.group;
-        StandardOutput = "journal";
-        StandardError = "journal";
+        ExecStart = "${pkg}/bin/fanbox-archive ${cfg.extraArgs}";
+        User = "1000";
+        Group = "100";
       };
       environment = {
-        FANBOXSESSID = cfg.sessid;
+        FANBOXSESSID = cfg.session;
         OUTPUT = cfg.output;
       };
     };
@@ -69,5 +64,9 @@ in
         Persistent = true;
       };
     };
+
+    environment.systemPackages = [
+      pkg
+    ];
   };
 }
