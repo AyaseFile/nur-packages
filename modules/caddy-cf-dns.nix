@@ -28,7 +28,7 @@ in
       default = { };
     };
 
-    environmentFile = mkOption {
+    envFile = mkOption {
       type = types.path;
       default = "/etc/caddy/.env";
     };
@@ -52,7 +52,7 @@ in
 
     systemd.services.caddy = {
       serviceConfig = {
-        EnvironmentFile = cfg.environmentFile;
+        EnvironmentFile = cfg.envFile;
       };
     };
   };
