@@ -7,7 +7,6 @@
 
 let
   inherit (lib)
-    mkEnableOption
     mkOption
     mkIf
     types
@@ -17,25 +16,24 @@ let
 in
 {
   options.programs.fanbox-archive = {
-    enable = mkEnableOption "FanboxArchive";
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+    };
     session = mkOption {
       type = types.singleLineStr;
-      description = "Your `FANBOXSESSID` cookie";
     };
     output = mkOption {
       type = types.path;
-      description = "Which path you want to save";
     };
     extraArgs = mkOption {
       type = types.singleLineStr;
       default = "";
-      description = "Extra arguments to pass";
     };
     interval = mkOption {
       type = types.singleLineStr;
       default = "14d";
       example = "1d";
-      description = "How often to run the sync (systemd time format)";
     };
   };
 
@@ -55,7 +53,7 @@ in
     };
 
     systemd.timers.fanbox-archive = {
-      description = "Timer for FanboxArchive";
+      description = "FanboxArchive timer";
       wantedBy = [ "timers.target" ];
       wants = [ "fanbox-archive.service" ];
       timerConfig = {

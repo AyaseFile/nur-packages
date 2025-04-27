@@ -7,7 +7,6 @@
 
 let
   inherit (lib)
-    mkEnableOption
     mkOption
     mkIf
     types
@@ -18,49 +17,43 @@ let
 in
 {
   options.programs.eh-archive = {
-    enable = mkEnableOption "EhArchive";
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+    };
     site = mkOption {
       type = types.enum [
         "e-hentai.org"
         "exhentai.org"
       ];
       default = "e-hentai.org";
-      description = "The site you want to retrieve from";
     };
     memberId = mkOption {
       type = types.singleLineStr;
-      description = "Your `ipb_member_id` cookie";
     };
     passHash = mkOption {
       type = types.singleLineStr;
-      description = "Your `ipb_pass_hash` cookie";
     };
     igneous = mkOption {
       type = types.nullOr types.singleLineStr;
       default = null;
-      description = "Your `igneous` cookie";
     };
     port = mkOption {
       type = types.int;
       default = 3000;
-      description = "Port to run the backend on";
     };
     archiveOutput = mkOption {
       type = types.path;
-      description = "Which path you want to save the archive to";
     };
     libraryRoot = mkOption {
       type = types.path;
-      description = "Path to the calibre library root";
     };
     tagDbRoot = mkOption {
       type = types.path;
-      description = "Path to the tag database root";
     };
     limit = mkOption {
       type = types.int;
       default = 5;
-      description = "Limit the number of tasks to process";
     };
   };
 

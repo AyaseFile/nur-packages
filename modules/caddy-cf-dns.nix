@@ -7,7 +7,6 @@
 
 let
   inherit (lib)
-    mkEnableOption
     mkOption
     mkIf
     types
@@ -16,18 +15,18 @@ let
 in
 {
   options.modules.caddy-cf-dns = {
-    enable = mkEnableOption "Fast and extensible multi-platform HTTP/1-2-3 web server with automatic HTTPS, with `dns.providers.cloudflare` plugin support";
-
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+    };
     globalConfig = mkOption {
       type = types.str;
       default = "";
     };
-
     virtualHosts = mkOption {
       type = types.attrsOf types.anything;
       default = { };
     };
-
     envFile = mkOption {
       type = types.path;
       default = "/etc/caddy/.env";

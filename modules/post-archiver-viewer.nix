@@ -7,7 +7,6 @@
 
 let
   inherit (lib)
-    mkEnableOption
     mkOption
     mkIf
     types
@@ -17,31 +16,29 @@ let
 in
 {
   options.programs.post-archiver-viewer = {
-    enable = mkEnableOption "PostArchiverViewer";
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+    };
     archiver = mkOption {
       type = types.path;
-      description = "Path to the archiver library";
     };
     resourceUrl = mkOption {
       type = types.nullOr types.singleLineStr;
       default = null;
-      description = "URL to the resource (optional)";
     };
     imagesUrl = mkOption {
       type = types.nullOr types.singleLineStr;
       default = null;
-      description = "URL to the images (optional)";
     };
     port = mkOption {
       type = types.int;
       default = 3000;
-      description = "Port to run the server on";
     };
     resizeConfig = {
       cacheSize = mkOption {
         type = types.int;
         default = 200;
-        description = "The maximum cache size by number of images";
       };
       filterType = mkOption {
         type = types.enum [
@@ -54,7 +51,6 @@ in
           "box"
         ];
         default = "lanczos3";
-        description = "The filter type to use for resizing";
       };
       algorithm = mkOption {
         type = types.enum [
@@ -66,7 +62,6 @@ in
           "nearest"
         ];
         default = "interpolation";
-        description = "The algorithm to use for resizing";
       };
     };
   };
