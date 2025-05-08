@@ -1,0 +1,32 @@
+diff --git a/src/osx/btop_collect.cpp b/src/osx/btop_collect.cpp
+index a77f920..273d027 100644
+--- a/src/osx/btop_collect.cpp
++++ b/src/osx/btop_collect.cpp
+@@ -649,9 +649,26 @@ namespace Mem {
+ 		vm_statistics64 p;
+ 		mach_msg_type_number_t info_size = HOST_VM_INFO64_COUNT;
+ 		if (host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info64_t)&p, &info_size) == 0) {
++			// these 2 are provided in bytes, not pages
++			uint64_t memsize;
++			size_t size = sizeof(memsize);
++			sysctlbyname("hw.memsize", &memsize, &size, nullptr, 0);
++			uint64_t memsize_usable;
++			size = sizeof(memsize_usable);
++			sysctlbyname("hw.memsize_usable", &memsize_usable, &size, nullptr, 0);
++
++			// unusable pages are reserved by kernel/vm, missing pages are likely stolen but no longer directly reported
++			int64_t unusable_pages = (memsize - memsize_usable) / PAGE_SIZE;
++			int64_t usable_pages = p.active_count + p.inactive_count + p.wire_count + p.compressor_page_count + p.free_count;
++			int64_t missing_pages = (memsize / PAGE_SIZE) - (usable_pages + unusable_pages);
++
++			// internal = App + system memory
++			// This should match the "Memory Used" value on Activity Monitor
++			int64_t activitymonitor_usedmem_pages = p.internal_page_count + p.wire_count + p.compressor_page_count + unusable_pages + missing_pages;
++
+ 			mem.stats.at("free") = p.free_count * Shared::pageSize;
+ 			mem.stats.at("cached") = p.external_page_count * Shared::pageSize;
+-			mem.stats.at("used") = (p.active_count + p.wire_count) * Shared::pageSize;
++			mem.stats.at("used") = activitymonitor_usedmem_pages * Shared::pageSize;
+ 			mem.stats.at("available") = Shared::totalMem - mem.stats.at("used");
+ 		}
+ 
