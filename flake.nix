@@ -28,6 +28,9 @@
           );
         in
         packages;
+
+      overlayFiles = listFilesRecursive ./overlays;
+      overlays = map nameOf overlayFiles;
     in
     {
       legacyPackages = forAllSystems (
@@ -47,5 +50,6 @@
         genAttrs (filter (name: !(elem name specialModules)) modules) (name: import ./modules/${name}.nix)
         // { }
       );
+      overlays = (genAttrs overlays (name: import ./overlays/${name}.nix));
     };
 }
