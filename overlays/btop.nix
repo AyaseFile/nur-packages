@@ -6,7 +6,7 @@ in
 {
   nixpkgs.overlays = [
     (final: prev: {
-      btop = if pkgs.stdenv.isDarwin then btop-darwin else pkgs.btop;
+      btop = if prev.stdenv.isDarwin then btop-darwin else prev.btop;
     })
   ];
 }
