@@ -1,4 +1,4 @@
-{ stdenv, pkgs, ... }:
+{ pkgs, ... }:
 
 let
   btop = pkgs.btop;
@@ -7,7 +7,7 @@ in
 {
   nixpkgs.overlays = [
     (final: prev: {
-      btop = if stdenv.hostPlatform.isDarwin then btop-darwin else btop;
+      btop = if pkgs.stdenv.isDarwin then btop-darwin else btop;
     })
   ];
 }
