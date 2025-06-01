@@ -12,13 +12,13 @@
 
 stdenv.mkDerivation rec {
   pname = "btop";
-  version = "1.4.2";
+  version = "1.4.3";
 
   src = fetchFromGitHub {
     owner = "aristocratos";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-qXdIk5Mp4Cxy0//e3SwevreK8VcJwz2vUGSX7nrFvxI=";
+    hash = "sha256-4x2vGmH2dfHZHG+zj2KGsL/pRNIZ8K8sXYRHy0io5IE=";
   };
 
   nativeBuildInputs = [ cmake ];
@@ -28,11 +28,6 @@ stdenv.mkDerivation rec {
   installFlags = [ "PREFIX=$(out)" ];
 
   patches = [
-    # https://github.com/aristocratos/btop/issues/1138
-    (fetchpatch {
-      url = "https://github.com/aristocratos/btop/commit/c3b225f536a263eb6d35708b1057dd4a6f1524a5.patch";
-      sha256 = "sha256-I05stm1mkiBpdNIUzL7cwG3kwcKJSHB7FEtnXxKyazQ=";
-    })
     # https://github.com/aristocratos/btop/issues/845#issuecomment-2759769309
     ./darwin.patch
   ];
