@@ -3,9 +3,22 @@
   outputs =
     { self, nixpkgs }:
     let
-      inherit (builtins) elem filter;
-      inherit (nixpkgs.lib) genAttrs replaceStrings;
-      inherit (nixpkgs.lib.filesystem) listFilesRecursive;
+      inherit (builtins)
+        attrNames
+        elem
+        filter
+        listToAttrs
+        readDir
+        ;
+      inherit (nixpkgs) lib;
+      inherit (lib)
+        filterAttrs
+        genAttrs
+        isDerivation
+        replaceStrings
+        ;
+      inherit (lib.filesystem) listFilesRecursive;
+      inherit (lib.systems) flakeExposed;
 
       nameOf = path: replaceStrings [ ".nix" ] [ "" ] (baseNameOf (toString path));
 
@@ -14,13 +27,13 @@
 
       specialModules = [ ];
 
-      forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
+      forAllSystems = genAttrs flakeExposed;
 
       loadPackages =
         { callPackage, directory }:
         let
-          subdirs = builtins.attrNames (builtins.readDir directory);
-          packages = builtins.listToAttrs (
+          subdirs = attrNames (readDir directory);
+          packages = listToAttrs (
             map (name: {
               inherit name;
               value = callPackage (directory + "/${name}") { };
@@ -43,9 +56,7 @@
           directory = ./packages;
         }
       );
-      packages = forAllSystems (
-        system: nixpkgs.lib.filterAttrs (_: v: nixpkgs.lib.isDerivation v) self.legacyPackages.${system}
-      );
+      packages = forAllSystems (system: filterAttrs (_: v: isDerivation v) self.legacyPackages.${system});
       modules = (
         genAttrs (filter (name: !(elem name specialModules)) modules) (name: import ./modules/${name}.nix)
         // { }
