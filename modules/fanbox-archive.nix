@@ -54,8 +54,12 @@ in
         ExecStart =
           let
             baseCmd = "${pkg}/bin/fanbox-archive";
-            userAgentArg = lib.optionalString (cfg.userAgent != null) " --user-agent ${cfg.userAgent}";
-            cookiesArg = lib.optionalString (cfg.cookies != null) " --cookies ${cfg.cookies}";
+            userAgentArg = lib.optionalString (
+              cfg.userAgent != null
+            ) " --user-agent \"${lib.escapeShellArg cfg.userAgent}\"";
+            cookiesArg = lib.optionalString (
+              cfg.cookies != null
+            ) " --cookies \"${lib.escapeShellArg cfg.cookies}\"";
             extraArgs = " ${cfg.extraArgs}";
           in
           baseCmd + userAgentArg + cookiesArg + extraArgs;
