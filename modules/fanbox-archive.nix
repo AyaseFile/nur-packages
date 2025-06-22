@@ -26,6 +26,15 @@ in
     output = mkOption {
       type = types.path;
     };
+    userAgent = mkOption {
+      type = types.nullOr types.singleLineStr;
+      default = null;
+    };
+    cookies = mkOption {
+      type = types.nullOr types.singleLineStr;
+      default = null;
+      example = "name=value; name2=value2; ...";
+    };
     extraArgs = mkOption {
       type = types.singleLineStr;
       default = "";
@@ -42,7 +51,14 @@ in
       description = "FanboxArchive";
       serviceConfig = {
         Type = "exec";
-        ExecStart = "${pkg}/bin/fanbox-archive ${cfg.extraArgs}";
+        ExecStart =
+          let
+            baseCmd = "${pkg}/bin/fanbox-archive";
+            userAgentArg = lib.optionalString (cfg.userAgent != null) " --user-agent ${cfg.userAgent}";
+            cookiesArg = lib.optionalString (cfg.cookies != null) " --cookies ${cfg.cookies}";
+            extraArgs = " ${cfg.extraArgs}";
+          in
+          baseCmd + userAgentArg + cookiesArg + extraArgs;
         User = "1000";
         Group = "100";
       };
