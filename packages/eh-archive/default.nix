@@ -8,17 +8,17 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "EhArchive";
-  version = "0.1.4";
+  version = "0.1.5";
 
   src = fetchFromGitHub {
     owner = "AyaseFile";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-Rc568GBDIYMsCRjTttSkgSDOh8MtQ998q447DHCDrww=";
+    sha256 = "sha256-n7LalbXXnMNHgwYrIcCFCw76DX3jUuQg8a6nOJcmbNg=";
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-0FkzEMzOW+vghXXy8AgHS3V/ClFfjSztuoydOcwD4So=";
+  cargoHash = "sha256-KiVpby5wqQWQpBLg5c/Sd016PdmHDZV9GkpT5NYq7Sk=";
 
   env.RUSTC_BOOTSTRAP = 1;
   nativeBuildInputs = [
@@ -27,11 +27,6 @@ rustPlatform.buildRustPackage rec {
   buildInputs = [
     openssl
   ];
-
-  postPatch = ''
-    substituteInPlace Cargo.toml \
-      --replace-fail "[package]" ''$'cargo-features = ["edition2024"]\n[package]'
-  '';
 
   doInstallCheck = true;
   installCheckPhase = ''
