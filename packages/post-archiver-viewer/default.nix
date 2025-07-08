@@ -12,21 +12,21 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "PostArchiverViewer";
-  version = "0.2.9";
+  version = "0.3.1";
 
   src = fetchFromGitHub {
     owner = "xiao-e-yun";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-EDQd/6QmI+bxHD/rDYLlgujqNaxjqTQrNf+V6ZW/Rkg=";
+    sha256 = "sha256-cDfuBGgpt8XZAf7SxWNLeK1kvuet+aGjQFGuaAQXDZI=";
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-YNQZbCLDRHb8LphqZbpj8GHW2T7LX9YbIpX2v35AWWQ=";
+  cargoHash = "sha256-LnFK5oeG173f6EsEhZj4xVaPWDBiYrAhUVmvpldpIYg=";
 
   offlineCache = fetchYarnDeps {
     yarnLock = yarnLock;
-    sha256 = "sha256-emP4shFphJIO06qXbSeLx6vPbzkNJzTxt+TotnizwLw=";
+    sha256 = "sha256-KD1/wQcAFb9abMkyh82+awe8Ol/d9q9W7XYK2SSik74=";
   };
 
   env.RUSTC_BOOTSTRAP = 1;

@@ -10,6 +10,7 @@ let
     mkOption
     mkIf
     types
+    optionalString
     ;
   cfg = config.programs.post-archiver-viewer;
   pkg = pkgs.callPackage ../packages/post-archiver-viewer { };
@@ -23,17 +24,25 @@ in
     archiver = mkOption {
       type = types.path;
     };
-    resourceUrl = mkOption {
-      type = types.nullOr types.singleLineStr;
-      default = null;
-    };
-    imagesUrl = mkOption {
-      type = types.nullOr types.singleLineStr;
-      default = null;
-    };
     port = mkOption {
       type = types.int;
       default = 3000;
+    };
+    publicConfig = {
+      resourceUrl = mkOption {
+        type = types.nullOr types.singleLineStr;
+        default = null;
+      };
+      imagesUrl = mkOption {
+        type = types.nullOr types.singleLineStr;
+        default = null;
+      };
+    };
+    futureConfig = {
+      fullTextSearch = mkOption {
+        type = types.bool;
+        default = false;
+      };
     };
     resizeConfig = {
       cacheSize = mkOption {
@@ -76,11 +85,17 @@ in
         Type = "exec";
         ExecStart =
           let
-            baseCmd = "${pkg}/bin/post-archiver-viewer --port ${toString cfg.port} --resize-cache-size ${toString cfg.resizeConfig.cacheSize} --resize-filter-type ${cfg.resizeConfig.filterType} --resize-algorithm ${cfg.resizeConfig.algorithm}";
-            resourceUrlArg = lib.optionalString (cfg.resourceUrl != null) " --resource-url ${cfg.resourceUrl}";
-            imagesUrlArg = lib.optionalString (cfg.imagesUrl != null) " --images-url ${cfg.imagesUrl}";
+            publicCfg = cfg.publicConfig;
+            futureCfg = cfg.futureConfig;
+            resizeCfg = cfg.resizeConfig;
+            baseCmd = "${pkg}/bin/post-archiver-viewer --port ${toString cfg.port} --resize-cache-size ${toString resizeCfg.cacheSize} --resize-filter-type ${resizeCfg.filterType} --resize-algorithm ${resizeCfg.algorithm}";
+            resourceUrlArg = optionalString (
+              publicCfg.resourceUrl != null
+            ) " --resource-url ${publicCfg.resourceUrl}";
+            imagesUrlArg = optionalString (publicCfg.imagesUrl != null) " --images-url ${publicCfg.imagesUrl}";
+            fullTextSearchArg = if futureCfg.fullTextSearch then " --full-text-search" else "";
           in
-          baseCmd + resourceUrlArg + imagesUrlArg;
+          baseCmd + resourceUrlArg + imagesUrlArg + fullTextSearchArg;
         User = "1000";
         Group = "100";
       };
