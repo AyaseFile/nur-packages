@@ -1,7 +1,6 @@
 # from https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/bt/btop/package.nix
 {
   lib,
-  fetchpatch,
   stdenv,
   fetchFromGitHub,
   cmake,
@@ -12,13 +11,13 @@
 
 stdenv.mkDerivation rec {
   pname = "btop";
-  version = "1.4.3";
+  version = "1.4.4";
 
   src = fetchFromGitHub {
     owner = "aristocratos";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-4x2vGmH2dfHZHG+zj2KGsL/pRNIZ8K8sXYRHy0io5IE=";
+    hash = "sha256-4H9UjewJ7UFQtTQYwvHZL3ecPiChpfT6LEZwbdBCIa0=";
   };
 
   nativeBuildInputs = [ cmake ];
@@ -26,6 +25,11 @@ stdenv.mkDerivation rec {
   buildInputs = [ apple-sdk_15 ];
 
   installFlags = [ "PREFIX=$(out)" ];
+
+  # fix build on darwin (see https://github.com/NixOS/nixpkgs/pull/422218#issuecomment-3039181870 and https://github.com/aristocratos/btop/pull/1173)
+  cmakeFlags = [
+    (lib.cmakeBool "BTOP_LTO" (!stdenv.hostPlatform.isDarwin))
+  ];
 
   patches = [
     # https://github.com/aristocratos/btop/issues/845#issuecomment-2759769309
