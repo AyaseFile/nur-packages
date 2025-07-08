@@ -30,6 +30,8 @@ rustPlatform.buildRustPackage rec {
   };
 
   env.RUSTC_BOOTSTRAP = 1;
+  cargoBuildFlags = [ "--all-features" ];
+
   nativeBuildInputs = [
     pkg-config
     yarn

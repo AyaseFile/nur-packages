@@ -93,7 +93,7 @@ in
               publicCfg.resourceUrl != null
             ) " --resource-url ${publicCfg.resourceUrl}";
             imagesUrlArg = optionalString (publicCfg.imagesUrl != null) " --images-url ${publicCfg.imagesUrl}";
-            fullTextSearchArg = if futureCfg.fullTextSearch then " --full-text-search" else "";
+            fullTextSearchArg = if futureCfg.fullTextSearch then " --full-text-search true" else "";
           in
           baseCmd + resourceUrlArg + imagesUrlArg + fullTextSearchArg;
         User = "1000";
