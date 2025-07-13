@@ -8,17 +8,17 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "PatreonArchive";
-  version = "0.0.1";
+  version = "0.0.2";
 
   src = fetchFromGitHub {
     owner = "xiao-e-yun";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-4N1nYbOcEs0VEgoGf1MLXlMouVcQPdLyVd1BH5f2jy4=";
+    sha256 = "sha256-Icdd+dGqsum2BNvhqv8LA+LaepcN2tYEsk9widnmS3A=";
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-FCHypkDqjf4ugqU+ZU5PNd/duqijgV38mGJRmqDcNyQ=";
+  cargoHash = "sha256-4i7/dF+l5GJyz3ti6jIq93QtPOE+Xwy/MciGD0Re8H0=";
 
   env.RUSTC_BOOTSTRAP = 1;
   nativeBuildInputs = [
