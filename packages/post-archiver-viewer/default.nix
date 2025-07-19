@@ -12,13 +12,13 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "PostArchiverViewer";
-  version = "0.3.1";
+  version = "0.3.2";
 
   src = fetchFromGitHub {
     owner = "xiao-e-yun";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-cDfuBGgpt8XZAf7SxWNLeK1kvuet+aGjQFGuaAQXDZI=";
+    sha256 = "sha256-IBIVM31F2mSkcoyP1D6XMPe3e1dxzSNEUnXNE6oMmEs=";
   };
 
   useFetchCargoVendor = true;
