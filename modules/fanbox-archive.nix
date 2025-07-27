@@ -10,6 +10,7 @@ let
     mkOption
     mkIf
     types
+    mkMerge
     ;
   cfg = config.programs.fanbox-archive;
   pkg = pkgs.callPackage ../packages/fanbox-archive { };
@@ -39,6 +40,10 @@ in
       type = types.singleLineStr;
       default = "";
     };
+    timer = mkOption {
+      type = types.bool;
+      default = true;
+    };
     interval = mkOption {
       type = types.singleLineStr;
       default = "14d";
@@ -46,45 +51,47 @@ in
     };
   };
 
-  config = mkIf cfg.enable {
-    systemd.services.fanbox-archive = {
-      description = "FanboxArchive";
-      serviceConfig = {
-        Type = "exec";
-        ExecStart =
-          let
-            baseCmd = "${pkg}/bin/fanbox-archive";
-            userAgentArg = lib.optionalString (
-              cfg.userAgent != null
-            ) " --user-agent \"${lib.escapeShellArg cfg.userAgent}\"";
-            cookiesArg = lib.optionalString (
-              cfg.cookies != null
-            ) " --cookies \"${lib.escapeShellArg cfg.cookies}\"";
-            extraArgs = " ${cfg.extraArgs}";
-          in
-          baseCmd + userAgentArg + cookiesArg + extraArgs;
-        User = "1000";
-        Group = "100";
+  config = mkMerge [
+    (mkIf cfg.enable {
+      systemd.services.fanbox-archive = {
+        description = "FanboxArchive";
+        serviceConfig = {
+          Type = "exec";
+          ExecStart =
+            let
+              baseCmd = "${pkg}/bin/fanbox-archive";
+              userAgentArg = lib.optionalString (
+                cfg.userAgent != null
+              ) " --user-agent \"${lib.escapeShellArg cfg.userAgent}\"";
+              cookiesArg = lib.optionalString (
+                cfg.cookies != null
+              ) " --cookies \"${lib.escapeShellArg cfg.cookies}\"";
+              extraArgs = " ${cfg.extraArgs}";
+            in
+            baseCmd + userAgentArg + cookiesArg + extraArgs;
+          User = "1000";
+          Group = "100";
+        };
+        environment = {
+          FANBOXSESSID = cfg.session;
+          OUTPUT = cfg.output;
+        };
       };
-      environment = {
-        FANBOXSESSID = cfg.session;
-        OUTPUT = cfg.output;
-      };
-    };
 
-    systemd.timers.fanbox-archive = {
-      description = "FanboxArchive timer";
-      wantedBy = [ "timers.target" ];
-      wants = [ "fanbox-archive.service" ];
-      timerConfig = {
-        OnUnitActiveSec = cfg.interval;
-        AccuracySec = "1h";
-        Persistent = true;
+      environment.systemPackages = [
+        pkg
+      ];
+    })
+    (mkIf cfg.timer {
+      systemd.timers.fanbox-archive = {
+        description = "FanboxArchive timer";
+        wantedBy = [ "timers.target" ];
+        wants = [ "fanbox-archive.service" ];
+        timerConfig = {
+          OnUnitActiveSec = cfg.interval;
+          Persistent = true;
+        };
       };
-    };
-
-    environment.systemPackages = [
-      pkg
-    ];
-  };
+    })
+  ];
 }

@@ -10,6 +10,7 @@ let
     mkOption
     mkIf
     types
+    mkMerge
     ;
   cfg = config.programs.patreon-archive;
   pkg = pkgs.callPackage ../packages/patreon-archive { };
@@ -30,6 +31,10 @@ in
       type = types.singleLineStr;
       default = "";
     };
+    timer = mkOption {
+      type = types.bool;
+      default = true;
+    };
     interval = mkOption {
       type = types.singleLineStr;
       default = "14d";
@@ -37,34 +42,36 @@ in
     };
   };
 
-  config = mkIf cfg.enable {
-    systemd.services.patreon-archive = {
-      description = "PatreonArchive";
-      serviceConfig = {
-        Type = "exec";
-        ExecStart = "${pkg}/bin/patreon-archive ${cfg.extraArgs}";
-        User = "1000";
-        Group = "100";
+  config = mkMerge [
+    (mkIf cfg.enable {
+      systemd.services.patreon-archive = {
+        description = "PatreonArchive";
+        serviceConfig = {
+          Type = "exec";
+          ExecStart = "${pkg}/bin/patreon-archive ${cfg.extraArgs}";
+          User = "1000";
+          Group = "100";
+        };
+        environment = {
+          SESSION = cfg.session;
+          OUTPUT = cfg.output;
+        };
       };
-      environment = {
-        SESSION = cfg.session;
-        OUTPUT = cfg.output;
-      };
-    };
 
-    systemd.timers.patreon-archive = {
-      description = "PatreonArchive timer";
-      wantedBy = [ "timers.target" ];
-      wants = [ "patreon-archive.service" ];
-      timerConfig = {
-        OnUnitActiveSec = cfg.interval;
-        AccuracySec = "1h";
-        Persistent = true;
+      environment.systemPackages = [
+        pkg
+      ];
+    })
+    (mkIf cfg.timer {
+      systemd.timers.patreon-archive = {
+        description = "PatreonArchive timer";
+        wantedBy = [ "timers.target" ];
+        wants = [ "patreon-archive.service" ];
+        timerConfig = {
+          OnUnitActiveSec = cfg.interval;
+          Persistent = true;
+        };
       };
-    };
-
-    environment.systemPackages = [
-      pkg
-    ];
-  };
+    })
+  ];
 }
