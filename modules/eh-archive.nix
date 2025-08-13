@@ -12,14 +12,24 @@ let
     types
     optionalAttrs
     ;
-  cfg = config.programs.eh-archive;
+  cfg = config.modules.eh-archive;
   pkg = pkgs.callPackage ../packages/eh-archive { };
 in
 {
-  options.programs.eh-archive = {
+  options.modules.eh-archive = {
     enable = mkOption {
       type = types.bool;
       default = false;
+    };
+    uid = mkOption {
+      type = types.int;
+    };
+    gid = mkOption {
+      type = types.int;
+    };
+    serviceConfig = mkOption {
+      type = types.attrsOf types.str;
+      default = { };
     };
     site = mkOption {
       type = types.enum [
@@ -66,18 +76,18 @@ in
       serviceConfig = {
         Type = "exec";
         ExecStart = "${pkg}/bin/eh-archive --port ${toString cfg.port} --archive-output ${cfg.archiveOutput} --library-root ${cfg.libraryRoot} --tag-db-root ${cfg.tagDbRoot} --limit ${toString cfg.limit}";
-        User = "1000";
-        Group = "100";
+        User = "${toString cfg.uid}";
+        Group = "${toString cfg.gid}";
+      }
+      // cfg.serviceConfig;
+      environment = {
+        EH_SITE = cfg.site;
+        EH_AUTH_ID = cfg.memberId;
+        EH_AUTH_HASH = cfg.passHash;
+      }
+      // optionalAttrs (cfg.igneous != null) {
+        EH_AUTH_IGNEOUS = cfg.igneous;
       };
-      environment =
-        {
-          EH_SITE = cfg.site;
-          EH_AUTH_ID = cfg.memberId;
-          EH_AUTH_HASH = cfg.passHash;
-        }
-        // optionalAttrs (cfg.igneous != null) {
-          EH_AUTH_IGNEOUS = cfg.igneous;
-        };
     };
 
     environment.systemPackages = [

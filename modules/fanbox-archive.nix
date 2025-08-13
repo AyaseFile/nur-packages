@@ -12,14 +12,24 @@ let
     types
     mkMerge
     ;
-  cfg = config.programs.fanbox-archive;
+  cfg = config.modules.fanbox-archive;
   pkg = pkgs.callPackage ../packages/fanbox-archive { };
 in
 {
-  options.programs.fanbox-archive = {
+  options.modules.fanbox-archive = {
     enable = mkOption {
       type = types.bool;
       default = false;
+    };
+    uid = mkOption {
+      type = types.int;
+    };
+    gid = mkOption {
+      type = types.int;
+    };
+    serviceConfig = mkOption {
+      type = types.attrsOf types.str;
+      default = { };
     };
     session = mkOption {
       type = types.singleLineStr;
@@ -69,9 +79,10 @@ in
               extraArgs = " ${cfg.extraArgs}";
             in
             baseCmd + userAgentArg + cookiesArg + extraArgs;
-          User = "1000";
-          Group = "100";
-        };
+          User = "${toString cfg.uid}";
+          Group = "${toString cfg.gid}";
+        }
+        // cfg.serviceConfig;
         environment = {
           FANBOXSESSID = cfg.session;
           OUTPUT = cfg.output;

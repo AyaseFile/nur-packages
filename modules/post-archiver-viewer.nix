@@ -12,14 +12,24 @@ let
     types
     optionalString
     ;
-  cfg = config.programs.post-archiver-viewer;
+  cfg = config.modules.post-archiver-viewer;
   pkg = pkgs.callPackage ../packages/post-archiver-viewer { };
 in
 {
-  options.programs.post-archiver-viewer = {
+  options.modules.post-archiver-viewer = {
     enable = mkOption {
       type = types.bool;
       default = false;
+    };
+    uid = mkOption {
+      type = types.int;
+    };
+    gid = mkOption {
+      type = types.int;
+    };
+    serviceConfig = mkOption {
+      type = types.attrsOf types.str;
+      default = { };
     };
     archiver = mkOption {
       type = types.path;
@@ -96,9 +106,10 @@ in
             fullTextSearchArg = if futureCfg.fullTextSearch then " --full-text-search true" else "";
           in
           baseCmd + resourceUrlArg + imagesUrlArg + fullTextSearchArg;
-        User = "1000";
-        Group = "100";
-      };
+        User = "${toString cfg.uid}";
+        Group = "${toString cfg.gid}";
+      }
+      // cfg.serviceConfig;
       environment = {
         ARCHIVER_PATH = cfg.archiver;
       };

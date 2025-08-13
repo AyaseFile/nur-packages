@@ -12,14 +12,24 @@ let
     types
     mkMerge
     ;
-  cfg = config.programs.patreon-archive;
+  cfg = config.modules.patreon-archive;
   pkg = pkgs.callPackage ../packages/patreon-archive { };
 in
 {
-  options.programs.patreon-archive = {
+  options.modules.patreon-archive = {
     enable = mkOption {
       type = types.bool;
       default = false;
+    };
+    uid = mkOption {
+      type = types.int;
+    };
+    gid = mkOption {
+      type = types.int;
+    };
+    serviceConfig = mkOption {
+      type = types.attrsOf types.str;
+      default = { };
     };
     session = mkOption {
       type = types.singleLineStr;
@@ -49,9 +59,10 @@ in
         serviceConfig = {
           Type = "exec";
           ExecStart = "${pkg}/bin/patreon-archive ${cfg.extraArgs}";
-          User = "1000";
-          Group = "100";
-        };
+          User = "${toString cfg.uid}";
+          Group = "${toString cfg.gid}";
+        }
+        // cfg.serviceConfig;
         environment = {
           SESSION = cfg.session;
           OUTPUT = cfg.output;
