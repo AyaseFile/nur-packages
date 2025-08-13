@@ -21,7 +21,6 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-IBIVM31F2mSkcoyP1D6XMPe3e1dxzSNEUnXNE6oMmEs=";
   };
 
-  useFetchCargoVendor = true;
   cargoHash = "sha256-LnFK5oeG173f6EsEhZj4xVaPWDBiYrAhUVmvpldpIYg=";
 
   offlineCache = fetchYarnDeps {
