@@ -13,7 +13,11 @@ let
     mkMerge
     ;
   cfg = config.modules.patreon-archive;
-  pkg = pkgs.callPackage ../packages/patreon-archive { };
+  pkg = pkgs.callPackage ../packages/patreon-archive {
+    args = {
+      inherit (cfg) session output extraArgs;
+    };
+  };
 in
 {
   options.modules.patreon-archive = {
@@ -58,15 +62,11 @@ in
         description = "PatreonArchive";
         serviceConfig = {
           Type = "exec";
-          ExecStart = "${pkg}/bin/patreon-archive ${cfg.extraArgs}";
+          ExecStart = "${pkg}/bin/patreon-archive";
           User = "${toString cfg.uid}";
           Group = "${toString cfg.gid}";
         }
         // cfg.serviceConfig;
-        environment = {
-          SESSION = cfg.session;
-          OUTPUT = cfg.output;
-        };
       };
 
       environment.systemPackages = [

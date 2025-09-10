@@ -8,65 +8,106 @@
   openssl,
   yarn,
   nodejs,
+  stdenv,
+  makeWrapper,
+  args ? { },
 }:
 
-rustPlatform.buildRustPackage rec {
+let
+  inherit (lib) optionalString;
+  unwrapped = rustPlatform.buildRustPackage rec {
+    pname = "PostArchiverViewer-unwrapped";
+    version = "0.3.2";
+
+    src = fetchFromGitHub {
+      owner = "xiao-e-yun";
+      repo = "PostArchiverViewer";
+      rev = "v${version}";
+      sha256 = "sha256-IBIVM31F2mSkcoyP1D6XMPe3e1dxzSNEUnXNE6oMmEs=";
+    };
+
+    cargoHash = "sha256-LnFK5oeG173f6EsEhZj4xVaPWDBiYrAhUVmvpldpIYg=";
+
+    offlineCache = fetchYarnDeps {
+      yarnLock = yarnLock;
+      sha256 = "sha256-KD1/wQcAFb9abMkyh82+awe8Ol/d9q9W7XYK2SSik74=";
+    };
+
+    env.RUSTC_BOOTSTRAP = 1;
+    cargoBuildFlags = [ "--all-features" ];
+
+    nativeBuildInputs = [
+      pkg-config
+      yarn
+      fixup-yarn-lock
+      nodejs
+    ];
+    buildInputs = [
+      openssl
+    ];
+
+    yarnLock = ./yarn.lock;
+
+    postPatch = ''
+      cp ${yarnLock} frontend/yarn.lock
+    '';
+
+    configurePhase = ''
+      runHook preConfigure
+
+      cd frontend
+      export HOME=$(mktemp -d)
+      yarn config --offline set yarn-offline-mirror ${offlineCache}
+      chmod +w yarn.lock
+      fixup-yarn-lock yarn.lock
+      chmod -w yarn.lock
+      rm -r .husky
+      yarn install --frozen-lockfile --offline --no-progress --non-interactive --ignore-scripts
+      node node_modules/.bin/vite build
+      cd ..
+
+      runHook postConfigure
+    '';
+
+    doInstallCheck = true;
+    installCheckPhase = ''
+      $out/bin/post-archiver-viewer -h > /dev/null
+    '';
+  };
+in
+stdenv.mkDerivation {
   pname = "PostArchiverViewer";
-  version = "0.3.2";
+  version = unwrapped.version;
 
-  src = fetchFromGitHub {
-    owner = "xiao-e-yun";
-    repo = pname;
-    rev = "v${version}";
-    sha256 = "sha256-IBIVM31F2mSkcoyP1D6XMPe3e1dxzSNEUnXNE6oMmEs=";
-  };
+  nativeBuildInputs = [ makeWrapper ];
 
-  cargoHash = "sha256-LnFK5oeG173f6EsEhZj4xVaPWDBiYrAhUVmvpldpIYg=";
+  dontUnpack = true;
 
-  offlineCache = fetchYarnDeps {
-    yarnLock = yarnLock;
-    sha256 = "sha256-KD1/wQcAFb9abMkyh82+awe8Ol/d9q9W7XYK2SSik74=";
-  };
-
-  env.RUSTC_BOOTSTRAP = 1;
-  cargoBuildFlags = [ "--all-features" ];
-
-  nativeBuildInputs = [
-    pkg-config
-    yarn
-    fixup-yarn-lock
-    nodejs
-  ];
-  buildInputs = [
-    openssl
-  ];
-
-  yarnLock = ./yarn.lock;
-
-  postPatch = ''
-    cp ${yarnLock} frontend/yarn.lock
-  '';
-
-  configurePhase = ''
-    runHook preConfigure
-
-    cd frontend
-    export HOME=$(mktemp -d)
-    yarn config --offline set yarn-offline-mirror ${offlineCache}
-    chmod +w yarn.lock
-    fixup-yarn-lock yarn.lock
-    chmod -w yarn.lock
-    rm -r .husky
-    yarn install --frozen-lockfile --offline --no-progress --non-interactive --ignore-scripts
-    node node_modules/.bin/vite build
-    cd ..
-
-    runHook postConfigure
-  '';
-
-  doInstallCheck = true;
-  installCheckPhase = ''
-    $out/bin/post-archiver-viewer -h > /dev/null
+  installPhase = ''
+    mkdir -p $out/bin
+    makeWrapper ${unwrapped}/bin/post-archiver-viewer $out/bin/post-archiver-viewer \
+      ${optionalString (args != { }) ''
+        --add-flags "--port ${toString args.port}" \
+        --add-flags "--resize-cache-size ${toString args.resizeConfig.cacheSize}" \
+        --add-flags "--resize-filter-type ${args.resizeConfig.filterType}" \
+        --add-flags "--resize-algorithm ${args.resizeConfig.algorithm}" \
+        ${
+          optionalString (
+            args ? "publicConfig" && args.publicConfig ? "resourceUrl" && args.publicConfig.resourceUrl != null
+          ) ''--add-flags "--resource-url ${args.publicConfig.resourceUrl}"''
+        } \
+        ${
+          optionalString (
+            args ? "publicConfig" && args.publicConfig ? "imagesUrl" && args.publicConfig.imagesUrl != null
+          ) ''--add-flags "--images-url ${args.publicConfig.imagesUrl}"''
+        } \
+        ${
+          optionalString (
+            args ? "futureConfig" && args.futureConfig.fullTextSearch
+          ) ''--add-flags "--full-text-search true"''
+        } \
+        --set ARCHIVER_PATH "${args.archiver}"
+      ''}
   '';
 
   meta = with lib; {

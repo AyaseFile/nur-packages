@@ -10,10 +10,23 @@ let
     mkOption
     mkIf
     types
-    optionalAttrs
     ;
   cfg = config.modules.eh-archive;
-  pkg = pkgs.callPackage ../packages/eh-archive { };
+  pkg = pkgs.callPackage ../packages/eh-archive {
+    args = {
+      inherit (cfg)
+        port
+        archiveOutput
+        libraryRoot
+        tagDbRoot
+        limit
+        site
+        memberId
+        passHash
+        igneous
+        ;
+    };
+  };
 in
 {
   options.modules.eh-archive = {
@@ -75,19 +88,11 @@ in
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "exec";
-        ExecStart = "${pkg}/bin/eh-archive --port ${toString cfg.port} --archive-output ${cfg.archiveOutput} --library-root ${cfg.libraryRoot} --tag-db-root ${cfg.tagDbRoot} --limit ${toString cfg.limit}";
+        ExecStart = "${pkg}/bin/eh-archive";
         User = "${toString cfg.uid}";
         Group = "${toString cfg.gid}";
       }
       // cfg.serviceConfig;
-      environment = {
-        EH_SITE = cfg.site;
-        EH_AUTH_ID = cfg.memberId;
-        EH_AUTH_HASH = cfg.passHash;
-      }
-      // optionalAttrs (cfg.igneous != null) {
-        EH_AUTH_IGNEOUS = cfg.igneous;
-      };
     };
 
     environment.systemPackages = [

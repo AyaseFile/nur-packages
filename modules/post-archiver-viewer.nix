@@ -10,10 +10,19 @@ let
     mkOption
     mkIf
     types
-    optionalString
     ;
   cfg = config.modules.post-archiver-viewer;
-  pkg = pkgs.callPackage ../packages/post-archiver-viewer { };
+  pkg = pkgs.callPackage ../packages/post-archiver-viewer {
+    args = {
+      inherit (cfg)
+        archiver
+        port
+        publicConfig
+        futureConfig
+        resizeConfig
+        ;
+    };
+  };
 in
 {
   options.modules.post-archiver-viewer = {
@@ -93,26 +102,11 @@ in
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "exec";
-        ExecStart =
-          let
-            publicCfg = cfg.publicConfig;
-            futureCfg = cfg.futureConfig;
-            resizeCfg = cfg.resizeConfig;
-            baseCmd = "${pkg}/bin/post-archiver-viewer --port ${toString cfg.port} --resize-cache-size ${toString resizeCfg.cacheSize} --resize-filter-type ${resizeCfg.filterType} --resize-algorithm ${resizeCfg.algorithm}";
-            resourceUrlArg = optionalString (
-              publicCfg.resourceUrl != null
-            ) " --resource-url ${publicCfg.resourceUrl}";
-            imagesUrlArg = optionalString (publicCfg.imagesUrl != null) " --images-url ${publicCfg.imagesUrl}";
-            fullTextSearchArg = if futureCfg.fullTextSearch then " --full-text-search true" else "";
-          in
-          baseCmd + resourceUrlArg + imagesUrlArg + fullTextSearchArg;
+        ExecStart = "${pkg}/bin/post-archiver-viewer";
         User = "${toString cfg.uid}";
         Group = "${toString cfg.gid}";
       }
       // cfg.serviceConfig;
-      environment = {
-        ARCHIVER_PATH = cfg.archiver;
-      };
     };
 
     environment.systemPackages = [

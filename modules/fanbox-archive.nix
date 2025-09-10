@@ -13,7 +13,17 @@ let
     mkMerge
     ;
   cfg = config.modules.fanbox-archive;
-  pkg = pkgs.callPackage ../packages/fanbox-archive { };
+  pkg = pkgs.callPackage ../packages/fanbox-archive {
+    args = {
+      inherit (cfg)
+        session
+        output
+        userAgent
+        cookies
+        extraArgs
+        ;
+    };
+  };
 in
 {
   options.modules.fanbox-archive = {
@@ -67,26 +77,11 @@ in
         description = "FanboxArchive";
         serviceConfig = {
           Type = "exec";
-          ExecStart =
-            let
-              baseCmd = "${pkg}/bin/fanbox-archive";
-              userAgentArg = lib.optionalString (
-                cfg.userAgent != null
-              ) " --user-agent \"${lib.escapeShellArg cfg.userAgent}\"";
-              cookiesArg = lib.optionalString (
-                cfg.cookies != null
-              ) " --cookies \"${lib.escapeShellArg cfg.cookies}\"";
-              extraArgs = " ${cfg.extraArgs}";
-            in
-            baseCmd + userAgentArg + cookiesArg + extraArgs;
+          ExecStart = "${pkg}/bin/fanbox-archive";
           User = "${toString cfg.uid}";
           Group = "${toString cfg.gid}";
         }
         // cfg.serviceConfig;
-        environment = {
-          FANBOXSESSID = cfg.session;
-          OUTPUT = cfg.output;
-        };
       };
 
       environment.systemPackages = [
