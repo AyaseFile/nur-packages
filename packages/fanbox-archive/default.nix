@@ -36,6 +36,10 @@ let
       openssl
     ];
 
+    postPatch = ''
+      sed -i 's/^version = ".*"/version = "${version}"/' Cargo.toml
+    '';
+
     doInstallCheck = true;
     installCheckPhase = ''
       $out/bin/fanbox-archive -h > /dev/null

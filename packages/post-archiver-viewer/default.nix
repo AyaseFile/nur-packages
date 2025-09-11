@@ -80,6 +80,10 @@ let
       runHook postConfigure
     '';
 
+    postPatch = ''
+      sed -i 's/^version = ".*"/version = "${version}"/' Cargo.toml
+    '';
+
     doInstallCheck = true;
     installCheckPhase = ''
       $out/bin/post-archiver-viewer -h > /dev/null
