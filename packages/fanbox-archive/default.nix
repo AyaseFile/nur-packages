@@ -22,7 +22,11 @@ let
       sha256 = "sha256-44hwdbr++NHie9/uIsVhp+E4/HgoJlznCf+kHE7jbGc=";
     };
 
-    cargoHash = "sha256-z2P+DuoUsbkOG7QK8o222J05alpRgrAaMISAzaYYtHI=";
+    cargoHash = "sha256-/5N7yw8YXk3K3UdCJdfTl9aQ+bjfSPzY2eysRlT0Bn8=";
+
+    cargoPatches = [
+      ./Cargo.lock.patch
+    ];
 
     env.RUSTC_BOOTSTRAP = 1;
     nativeBuildInputs = [
