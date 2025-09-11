@@ -1,12 +1,10 @@
 {
   lib,
   fetchFromGitHub,
-  fetchYarnDeps,
-  fixup-yarn-lock,
   rustPlatform,
   pkg-config,
   openssl,
-  yarn,
+  bun,
   nodejs,
   stdenv,
   makeWrapper,
@@ -15,54 +13,67 @@
 
 let
   inherit (lib) optionalString;
-  unwrapped = rustPlatform.buildRustPackage rec {
+
+  version = "0.3.7";
+
+  src = fetchFromGitHub {
+    owner = "xiao-e-yun";
+    repo = "PostArchiverViewer";
+    rev = "v${version}";
+    sha256 = "sha256-3BqOAIF0Xcu5bO/ZepPuqfauKnM2hXO0oafHuqP7aLw=";
+  };
+
+  frontendDeps = stdenv.mkDerivation {
+    pname = "PostArchiverViewer-frontend-deps";
+    inherit version src;
+
+    nativeBuildInputs = [ bun ];
+
+    dontBuild = true;
+    dontFixup = true;
+
+    installPhase = ''
+      export HOME=$(mktemp -d)
+      cd frontend
+      rm -rf .husky
+      bun install --frozen-lockfile --no-cache --ignore-scripts
+      mkdir -p $out
+      cp -r node_modules $out/
+      cp bun.lockb package.json $out/
+    '';
+
+    outputHash = "sha256-zU9PxI6SmdLMmYgqfZb3IqI49SsRF0AlRDodrywqQic=";
+    outputHashAlgo = "sha256";
+    outputHashMode = "recursive";
+  };
+
+  unwrapped = rustPlatform.buildRustPackage {
     pname = "PostArchiverViewer-unwrapped";
-    version = "0.3.2";
+    inherit version src;
 
-    src = fetchFromGitHub {
-      owner = "xiao-e-yun";
-      repo = "PostArchiverViewer";
-      rev = "v${version}";
-      sha256 = "sha256-IBIVM31F2mSkcoyP1D6XMPe3e1dxzSNEUnXNE6oMmEs=";
-    };
+    cargoHash = "sha256-v47DqG3zzKaCK6fnNshDYC2/RnMHlQOt0cnXLQiNqzw=";
 
-    cargoHash = "sha256-LnFK5oeG173f6EsEhZj4xVaPWDBiYrAhUVmvpldpIYg=";
-
-    offlineCache = fetchYarnDeps {
-      yarnLock = yarnLock;
-      sha256 = "sha256-KD1/wQcAFb9abMkyh82+awe8Ol/d9q9W7XYK2SSik74=";
-    };
+    cargoPatches = [
+      ./Cargo.lock.patch
+    ];
 
     env.RUSTC_BOOTSTRAP = 1;
     cargoBuildFlags = [ "--all-features" ];
 
     nativeBuildInputs = [
       pkg-config
-      yarn
-      fixup-yarn-lock
       nodejs
     ];
     buildInputs = [
       openssl
     ];
 
-    yarnLock = ./yarn.lock;
-
-    postPatch = ''
-      cp ${yarnLock} frontend/yarn.lock
-    '';
-
     configurePhase = ''
       runHook preConfigure
 
       cd frontend
       export HOME=$(mktemp -d)
-      yarn config --offline set yarn-offline-mirror ${offlineCache}
-      chmod +w yarn.lock
-      fixup-yarn-lock yarn.lock
-      chmod -w yarn.lock
-      rm -r .husky
-      yarn install --frozen-lockfile --offline --no-progress --non-interactive --ignore-scripts
+      cp -r ${frontendDeps}/node_modules .
       node node_modules/.bin/vite build
       cd ..
 
@@ -73,6 +84,10 @@ let
     installCheckPhase = ''
       $out/bin/post-archiver-viewer -h > /dev/null
     '';
+
+    passthru = {
+      inherit frontendDeps;
+    };
   };
 in
 stdenv.mkDerivation {
