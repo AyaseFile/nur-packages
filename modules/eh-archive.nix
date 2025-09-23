@@ -86,6 +86,8 @@ in
     systemd.services.eh-archive = {
       description = "EhArchive";
       wantedBy = [ "multi-user.target" ];
+      wants = [ "network-online.target" ];
+      after = [ "network-online.target" ];
       serviceConfig = {
         Type = "exec";
         ExecStart = "${pkg}/bin/eh-archive";
