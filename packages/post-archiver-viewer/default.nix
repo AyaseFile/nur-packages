@@ -14,13 +14,13 @@
 let
   inherit (lib) optionalString;
 
-  version = "0.3.7";
+  version = "0.3.9";
 
   src = fetchFromGitHub {
     owner = "xiao-e-yun";
     repo = "PostArchiverViewer";
     rev = "v${version}";
-    sha256 = "sha256-3BqOAIF0Xcu5bO/ZepPuqfauKnM2hXO0oafHuqP7aLw=";
+    sha256 = "sha256-tzwLMTW3kjQF4kglSakbNqFYUn2o9RXq+VHZxy/FM50=";
   };
 
   frontendDeps = stdenv.mkDerivation {
@@ -51,7 +51,7 @@ let
     pname = "PostArchiverViewer-unwrapped";
     inherit version src;
 
-    cargoHash = "sha256-v47DqG3zzKaCK6fnNshDYC2/RnMHlQOt0cnXLQiNqzw=";
+    cargoHash = "sha256-yWy0RER8AwbICT9IDt+UdTJrRplkcVqOwKsRopVtddI=";
 
     cargoPatches = [
       ./Cargo.lock.patch

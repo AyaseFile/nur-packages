@@ -1,13 +1,13 @@
 diff --git a/Cargo.lock b/Cargo.lock
-index 6fed047..55e21a6 100644
+index dd01b9f..b60931d 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
-@@ -2003,7 +2003,7 @@ dependencies = [
+@@ -2123,7 +2123,7 @@ dependencies = [
  
  [[package]]
  name = "post-archiver-viewer"
 -version = "0.1.0"
-+version = "0.3.7"
++version = "0.3.9"
  dependencies = [
   "axum",
   "axum-extra",

@@ -13,16 +13,20 @@ let
   inherit (lib) optionalString;
   unwrapped = rustPlatform.buildRustPackage rec {
     pname = "PatreonArchive-unwrapped";
-    version = "0.0.2";
+    version = "0.1.0";
 
     src = fetchFromGitHub {
       owner = "xiao-e-yun";
       repo = "PatreonArchive";
       rev = "v${version}";
-      sha256 = "sha256-Icdd+dGqsum2BNvhqv8LA+LaepcN2tYEsk9widnmS3A=";
+      sha256 = "sha256-mgwFF+v+7A7N9FTKcSmFXj2WNITLGFO0008vCjvjeEo=";
     };
 
-    cargoHash = "sha256-4i7/dF+l5GJyz3ti6jIq93QtPOE+Xwy/MciGD0Re8H0=";
+    cargoHash = "sha256-1ClcKCv+1auXJnO9jGm8Co7Ollxgq69dlVHIIAETx9g=";
+
+    cargoPatches = [
+      ./Cargo.lock.patch
+    ];
 
     env.RUSTC_BOOTSTRAP = 1;
     nativeBuildInputs = [
@@ -31,6 +35,10 @@ let
     buildInputs = [
       openssl
     ];
+
+    postPatch = ''
+      sed -i 's/^version = ".*"/version = "${version}"/' Cargo.toml
+    '';
 
     doInstallCheck = true;
     installCheckPhase = ''

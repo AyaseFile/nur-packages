@@ -1,13 +1,13 @@
 diff --git a/Cargo.lock b/Cargo.lock
-index 38446d0..10722cb 100644
+index 658a142..b5b88cf 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
-@@ -403,7 +403,7 @@ checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
+@@ -410,7 +410,7 @@ checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
  
  [[package]]
  name = "fanbox-archive"
 -version = "0.1.0"
-+version = "0.5.4"
++version = "0.6.1"
  dependencies = [
   "chrono",
   "clap",
