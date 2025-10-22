@@ -1,13 +1,13 @@
 diff --git a/Cargo.lock b/Cargo.lock
-index db511ce..a3557cc 100644
+index d3af6b3..425c8ae 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
-@@ -1596,7 +1596,7 @@ checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
+@@ -1597,7 +1597,7 @@ checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
  
  [[package]]
  name = "patreon-archive"
 -version = "0.0.2"
-+version = "0.1.0"
++version = "0.1.2"
  dependencies = [
   "chrono",
   "clap",

@@ -13,16 +13,16 @@ let
   inherit (lib) optionalString escapeShellArg;
   unwrapped = rustPlatform.buildRustPackage rec {
     pname = "FanboxArchive-unwrapped";
-    version = "0.6.1";
+    version = "0.6.5";
 
     src = fetchFromGitHub {
       owner = "xiao-e-yun";
       repo = "FanboxArchive";
       rev = "v${version}";
-      sha256 = "sha256-U6FT/y/hb7hY6tlyb821Y26tsHwS/1XRKHi8sIHiJOY=";
+      sha256 = "sha256-clLQhh7KraV0NzGLybGX6BCAq1y1xgpzQw7Tcme1xeI=";
     };
 
-    cargoHash = "sha256-s+6B04pbcMC4PGTkpIPqBJv4cUGeejtWmzWb1yViGKY=";
+    cargoHash = "sha256-eu8lUnd85MkwljvIcM6DZOHrPxB6wnVzoy6ni9CYCeE=";
 
     cargoPatches = [
       ./Cargo.lock.patch

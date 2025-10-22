@@ -14,13 +14,13 @@
 let
   inherit (lib) optionalString;
 
-  version = "0.3.9";
+  version = "0.5.2";
 
   src = fetchFromGitHub {
     owner = "xiao-e-yun";
     repo = "PostArchiverViewer";
     rev = "v${version}";
-    sha256 = "sha256-tzwLMTW3kjQF4kglSakbNqFYUn2o9RXq+VHZxy/FM50=";
+    sha256 = "sha256-gaksKefv0mjt8aBrziB7lgNdUbYXayfVW/N/QzYqpLY=";
   };
 
   frontendDeps = stdenv.mkDerivation {
@@ -42,7 +42,7 @@ let
       cp bun.lockb package.json $out/
     '';
 
-    outputHash = "sha256-zU9PxI6SmdLMmYgqfZb3IqI49SsRF0AlRDodrywqQic=";
+    outputHash = "sha256-ih1ueUHNzrdS23DAP76EHnypxtrrF9DV+tXpfqEPrOA=";
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
   };
@@ -51,7 +51,7 @@ let
     pname = "PostArchiverViewer-unwrapped";
     inherit version src;
 
-    cargoHash = "sha256-yWy0RER8AwbICT9IDt+UdTJrRplkcVqOwKsRopVtddI=";
+    cargoHash = "sha256-Frh+HxY29NooctCxBwHCJJuuhhBYNY+yrWyqkmx6ypo=";
 
     cargoPatches = [
       ./Cargo.lock.patch
@@ -107,9 +107,9 @@ stdenv.mkDerivation {
     makeWrapper ${unwrapped}/bin/post-archiver-viewer $out/bin/post-archiver-viewer \
       ${optionalString (args != { }) ''
         --add-flags "--port ${toString args.port}" \
-        --add-flags "--resize-cache-size ${toString args.resizeConfig.cacheSize}" \
-        --add-flags "--resize-filter-type ${args.resizeConfig.filterType}" \
-        --add-flags "--resize-algorithm ${args.resizeConfig.algorithm}" \
+        --add-flags "--resize-images-cache-size ${toString args.resizeConfig.cacheSize}" \
+        --add-flags "--resize-images-filter-type ${args.resizeConfig.filterType}" \
+        --add-flags "--resize-images-algorithm ${args.resizeConfig.algorithm}" \
         ${
           optionalString (
             args ? "publicConfig" && args.publicConfig ? "resourceUrl" && args.publicConfig.resourceUrl != null

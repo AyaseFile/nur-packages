@@ -13,16 +13,16 @@ let
   inherit (lib) optionalString;
   unwrapped = rustPlatform.buildRustPackage rec {
     pname = "PatreonArchive-unwrapped";
-    version = "0.1.0";
+    version = "0.1.2";
 
     src = fetchFromGitHub {
       owner = "xiao-e-yun";
       repo = "PatreonArchive";
       rev = "v${version}";
-      sha256 = "sha256-mgwFF+v+7A7N9FTKcSmFXj2WNITLGFO0008vCjvjeEo=";
+      sha256 = "sha256-ckhHp4KiYUHMtb/jtAdbo8zWXoqr5bOYlNEZrFNr5Ds=";
     };
 
-    cargoHash = "sha256-1ClcKCv+1auXJnO9jGm8Co7Ollxgq69dlVHIIAETx9g=";
+    cargoHash = "sha256-IcXYXGw79Wo9fKxiLFvtjAxfkVtMDsJK7V8a9m5kux8=";
 
     cargoPatches = [
       ./Cargo.lock.patch
