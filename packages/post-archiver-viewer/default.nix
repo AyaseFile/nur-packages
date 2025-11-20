@@ -42,7 +42,7 @@ let
       cp bun.lockb package.json $out/
     '';
 
-    outputHash = "sha256-ih1ueUHNzrdS23DAP76EHnypxtrrF9DV+tXpfqEPrOA=";
+    outputHash = "sha256-hrBpC4SOoNw/tHX0NRPruL1U6QDNFqttD7LDGbCYXkQ=";
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
   };
