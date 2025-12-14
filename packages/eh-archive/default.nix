@@ -13,16 +13,16 @@ let
   inherit (lib) optionalString;
   unwrapped = rustPlatform.buildRustPackage rec {
     pname = "EhArchive-unwrapped";
-    version = "0.1.6";
+    version = "0.1.7";
 
     src = fetchFromGitHub {
       owner = "AyaseFile";
       repo = "EhArchive";
       rev = "v${version}";
-      sha256 = "sha256-N33uUgkHZmdPGWfpxIzAuVeaX+9N5AG9DZcgVK717aI=";
+      sha256 = "sha256-Pu9g/8eWr/mKAU+s6vli5IzPxIkagNqX0jSDztS3ag8=";
     };
 
-    cargoHash = "sha256-h34+w29Y9+vAXpFF0+Pa7FX68eoT50JHqPv95xvQq9c=";
+    cargoHash = "sha256-ghAlPds4TqurT0PpPYPpE0gIgYAkU/R/tYFHHJVemmo=";
 
     env.RUSTC_BOOTSTRAP = 1;
     nativeBuildInputs = [
